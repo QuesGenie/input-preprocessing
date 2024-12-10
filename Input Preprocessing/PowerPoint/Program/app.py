@@ -84,6 +84,7 @@ def PowerPointExtractor(path,relevance_model):
     return file_name
 
 
-relevance_model = pipeline("zero-shot-classification", model="valhalla/distilbart-mnli-12-1")
-file_name = PowerPointExtractor('/content/Lecture 8.pptx',relevance_model)
-print(f"Extraction complete. JSON saved at {file_name}")
+if __name__ == "__main__":
+    relevance_model = pipeline("zero-shot-classification", model="valhalla/distilbart-mnli-12-1")
+    file_name = PowerPointExtractor('/content/Lecture 8.pptx',relevance_model)
+    print(f"Extraction complete. JSON saved at {file_name}")
