@@ -3,8 +3,19 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from sentence_transformers import util
 import string
+import nltk
+
+
+
 stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
+
+DOWNLOAD_PACKAGES = False
+
+if DOWNLOAD_PACKAGES:
+    nltk.download('stopwords')
+    nltk.download('punkt_tab')
+    nltk.download('wordnet')
 
 
 def preprocess_text(text):
