@@ -55,6 +55,8 @@ class Pymupdf:
 
         result = {"slides": slides}
         return result
+    
+    
 
 
 # extracted_data = extract_text_and_images("/content/[IoT'24] Lecture 2.pdf", "/content/extracted_pdf")

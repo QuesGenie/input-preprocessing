@@ -3,7 +3,7 @@ import os
 from  utils.extract import *
 from utils.json_slide_utils import JsonUtils as utils
 class PDFPlumper:
-    @staticmethod
+
     def extract_text_and_images(pdf_file):
         """
         Extracts text and images from a PDF file using pdfplumber.
@@ -41,5 +41,6 @@ class PDFPlumper:
                     else:
                         utils.add_image_text_to_json_format(slide,ocr_text)
                 extracted_content["slides"].append(slide)
-        extracted_content
+        return extracted_content
         
+    
