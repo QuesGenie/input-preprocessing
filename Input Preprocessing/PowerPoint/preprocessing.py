@@ -28,3 +28,4 @@ def is_relevant_text(text, relevance_model,labels):
     except Exception as e:
         print(f"Error with relevance model: {e}")
         return False
+        
