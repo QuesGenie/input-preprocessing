@@ -1,6 +1,7 @@
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+from sentence_transformers import util
 import string
 stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
@@ -23,8 +24,12 @@ def preprocess_text(text):
 
 def is_relevant_text(text, relevance_model,labels):
     try:
-        result = relevance_model(text, candidate_labels=labels)
-        return max(result["scores"]) > 0.4
+
+        # result = relevance_model(text, candidate_labels=labels)
+        # return max(result["scores"]) > 0.3
+        text_embedding = relevance_model.encode(text)
+        score = util.cos_sim(text_embedding, labels).max()
+        return score > 0.3  # Adjust threshold as needed
     except Exception as e:
         print(f"Error with relevance model: {e}")
         return False

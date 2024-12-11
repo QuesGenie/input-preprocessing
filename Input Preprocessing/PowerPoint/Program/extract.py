@@ -1,19 +1,21 @@
 import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 from PIL import Image
+import io
 from preprocessing import *
 import os
 
 
 
 
-def extract_text_from_image(image_blob):
+def extract_text_from_image(image_blob, relevance_model, labels):
     try:
-        with open("temp_image.png", "wb") as temp_image_file:
-            temp_image_file.write(image_blob)
-        image = Image.open("temp_image.png")
+        image = Image.open(io.BytesIO(image_blob))
         text = pytesseract.image_to_string(image)
-        os.remove("temp_image.png")  # Clean up temp image
-        return text.strip()
+        text_pre = preprocess_text(text.strip())
+        if text_pre and is_relevant_text(text_pre, relevance_model, labels):
+            return text_pre
+        return None
     except Exception as e:
         print(f"Error extracting text from image: {e}")
         return None
@@ -21,7 +23,6 @@ def extract_text_from_image(image_blob):
 
 
 def extract_all_text(ppt):
-    """Extract all text from the presentation for topic modeling."""
     all_text = []
     for slide in ppt.slides:
         for shape in slide.shapes:
@@ -31,8 +32,4 @@ def extract_all_text(ppt):
                     preprocessed_text = preprocess_text(text)
                     if preprocessed_text:
                         all_text.append(preprocessed_text)
-            elif hasattr(shape, "image"):
-                image_text = extract_text_from_image(shape.image.blob)
-                if image_text:
-                    all_text.append(image_text)
     return all_text
