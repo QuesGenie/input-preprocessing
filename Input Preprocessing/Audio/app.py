@@ -28,7 +28,7 @@ class WhisperAudioTranscript:
     self.transcribe()
     return "".join(self.transcription)
 
-if __name__ === "__main__":
+if __name__ == "__main__":
     WhisperBaseModel = whisper.load_model("base")
     audioModel = WhisperAudioTranscript('./samples/audio.mp3',WhisperBaseModel)
     print(audioModel.get_transcript())
