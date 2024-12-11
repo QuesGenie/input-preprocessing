@@ -5,7 +5,7 @@ import tqdm.notebook as tq
 from tqdm.notebook import tqdm
 import json
 import uuid
-from extract import *
+from utils.extract import *
 from candidate_labels import * 
 from utils import utils
 

@@ -1,7 +1,8 @@
 import pdfplumber
 import os
-from utils import utils
-class PDFPlumperProcessor:
+from  utils.extract import *
+from utils.json_slide_utils import JsonUtils as utils
+class PDFPlumper:
     @staticmethod
     def extract_text_and_images(pdf_file):
         """
@@ -30,14 +31,15 @@ class PDFPlumperProcessor:
                 text = page.extract_text() or ""
                 utils.add_text_to_json_format(text,page_number,slide)
                 for i, img in enumerate(page.images):
-                    if all(key in img for key in ("x0", "top", "x1", "bottom")):
+                    ocr_text = extract_text_from_image(img)
+                    if not ocr_text:
                         image_filename = f"page_{page_number+1}_img_{i+1}.png"
                         image_path = os.path.join(image_folder, image_filename)
                         cropped_image = page.within_bbox((img["x0"], img["top"], img["x1"], img["bottom"])).to_image()
                         cropped_image.save(image_path)
                         utils.add_image_to_json_format(page_number,slide,{img,i,image_path})
                     else:
-                        print(f"Skipping image {i+1} on page {page_number+1} due to missing bbox information.")
-            extracted_content["slides"].append(slide)
+                        utils.add_image_text_to_json_format(slide,ocr_text)
+                extracted_content["slides"].append(slide)
         extracted_content
         
