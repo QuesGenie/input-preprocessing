@@ -7,16 +7,8 @@ import json
 import uuid
 from extract import *
 from candidate_labels import * 
+from utils import utils
 
-
-
-def write_json_to_file(data, filename):
-    try:
-        with open(filename, "w", encoding="utf-8") as json_file:
-            json.dump(data, json_file, indent=4, ensure_ascii=False)
-            print(f"JSON data has been written to {filename}")
-    except Exception as e:
-            print(f"An error occurred while writing JSON to file: {e}")
 
 
 def PowerPointExtractor(path,relevance_model):
@@ -80,7 +72,7 @@ def PowerPointExtractor(path,relevance_model):
         slide_number += 1
 
     file_name = os.path.join(folder_text_path, f'Data-{folder_name}.json')
-    write_json_to_file(extracted_content, file_name)
+    utils.write_json_to_file(extracted_content, file_name)
     return file_name
 
 
