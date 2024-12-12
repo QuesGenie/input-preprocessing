@@ -1,0 +1,322 @@
+{
+    "slides": [
+        {
+            "slide_number": 1,
+            "content": [
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_1_3.png"
+                },
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_1_4.png"
+                }
+            ]
+        },
+        {
+            "slide_number": 2,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "The Relational Data Model and Relational Database Constraints"
+                }
+            ]
+        },
+        {
+            "slide_number": 3,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Relational Model Concepts\nRelational Model Constraints and Relational Database Schemas\nUpdate Operations and Dealing with Constraint Violations"
+                }
+            ]
+        },
+        {
+            "slide_number": 4,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Informally, a relation looks like a table of values.\n\nA relation typically contains a set of rows.\n\nThe data elements in each row represent certain facts that correspond to a real-world entity or relationship\nIn the formal model, rows are called tuples\n\nEach column has a column header that gives an indication of the meaning of the data items in that column\nIn the formal model, the column header is called an attribute name (or just attribute)"
+                }
+            ]
+        },
+        {
+            "slide_number": 5,
+            "content": [
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_5_4.png",
+                    "ocr_text": "rea name attribute stent name homephone address officephone age gpa benjamin bayer 305612435 3731616 2918 bluebonnet lane null 321 chungcha kim 381621245 3754409 125 kirby road null 289 tuples dick davidson 422112320 null 3452 elgin road 7491253 353 rohan panchal 489221100 3769821 265 lark lane 7496492 393 barbara benson 533691238 8398461 7384 fontana lane null 325 figure attribute tuples relation student"
+                }
+            ]
+        },
+        {
+            "slide_number": 6,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Key of a Relation:\nEach row has a value of a data item (or set of items) that uniquely identifies that row in the table\nCalled the key\nIn the STUDENT table, SSN is the key\n\nSometimes row-ids or sequential numbers are assigned as keys to identify the rows in a table\nCalled artificial key or surrogate key"
+                }
+            ]
+        },
+        {
+            "slide_number": 7,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "The Schema (or description) of a Relation:\nDenoted by R(A1, A2, .....An)\nR is the name of the relation\nThe attributes of the relation are A1, A2, ..., An\nExample:\n\tCUSTOMER (Cust-id, Cust-name, Address, Phone#)\nCUSTOMER is the relation name\nDefined over the four attributes: Cust-id, Cust-name, Address, Phone#\nEach attribute has a domain or a set of valid values. \nFor example, the domain of Cust-id is 6 digit numbers."
+                }
+            ]
+        },
+        {
+            "slide_number": 8,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "A tuple is an ordered set of values (enclosed in angled brackets ‘< … >’)\nEach value is derived from an appropriate domain.\nA row in the CUSTOMER relation is a 4-tuple and would consist of four values, for example:\n<632895, \"John Smith\", \"101 Main St. Atlanta, GA  30332\", \"(404) 894-2000\">\nThis is called a 4-tuple as it has 4 values\nA tuple (row) in the CUSTOMER relation.\nA relation is a set of such tuples (rows)"
+                }
+            ]
+        },
+        {
+            "slide_number": 9,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "A domain has a logical definition:\nExample: “USA_phone_numbers” are the set of 10 digit phone numbers valid in the U.S.\nA domain also has a data-type or a format defined for it.\nThe USA_phone_numbers may have a format: (ddd)ddd-dddd where each d is a decimal digit.\nDates have various formats such as year, month, date formatted as yyyy-mm-dd, or as dd mm,yyyy etc.\n\nThe attribute name designates the role played by a domain in a relation:\nUsed to interpret the meaning of the data elements corresponding to that attribute\nExample: The domain Date may be used to define two attributes named “Invoice-date” and “Payment-date” with different meanings"
+                }
+            ]
+        },
+        {
+            "slide_number": 10,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Relational Database Schema:\nA set S of relation schemas that belong to the same database.\nS is the name of the whole database schema\nS = {R1, R2, ..., Rn}\nR1, R2, …, Rn are the names of the individual relation schemas within the database S\nFollowing slide shows a COMPANY database schema with 6 relation schemas"
+                }
+            ]
+        },
+        {
+            "slide_number": 11,
+            "content": [
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_11_2.png",
+                    "ocr_text": "employee fname minit lname ssn bdate address sex salary superssn dno department dname dnumber mgrssn mgrstartdate deptlocations dnumber dlocation project pname pnumber plocation dnum workson essn pno hour dependent essn dependentname sex bdate relationship figure schema diagram company relational database"
+                }
+            ]
+        },
+        {
+            "slide_number": 13,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Ordering of tuples in a relation r(R):\nThe tuples are not considered to be ordered, even though they appear to be in the tabular form.\nOrdering of attributes in a relation schema R (and of values within each tuple):\nWe will consider the attributes in R(A1, A2, ..., An) and the values in t=<v1, v2, ..., vn> to be ordered .\n(However, a more general alternative definition  of relation does not require this ordering)."
+                }
+            ]
+        },
+        {
+            "slide_number": 14,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Same state as previous Figure (but with different order of tuples)"
+                },
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_14_3.png",
+                    "ocr_text": "figure relation student figure different order tuples student name ssn homephone address officephone age gpa dick davidson 422112320 null 3452 elgin road 7491253 353 barbara benson 533691238 8398461 7384 fontana lane null 325 rohan panchal 489221100 3769821 265 lark lane 7496492 393 chungcha kim 381621245 3754409 125 kirby road null 289 benjamin bayer 305612435 3731616 2918 bluebonnet lane null 321"
+                }
+            ]
+        },
+        {
+            "slide_number": 15,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Values in a tuple:\nAll values are considered atomic (indivisible).\nEach value in a tuple must be from the domain of the attribute for that column\nIf tuple t = <v1, v2, …, vn> is a tuple (row) in the relation state r of R(A1, A2, …, An)\nThen each vi must be a value from dom(Ai)\n\nA special null value is used to represent values that are unknown or inapplicable to certain tuples."
+                }
+            ]
+        },
+        {
+            "slide_number": 16,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Constraints are conditions that must hold on all  valid relation states.\nThere are three main types of constraints in the relational model:\nKey constraints\nEntity integrity constraints\nReferential integrity constraints\nAnother implicit constraint is the domain constraint\nEvery value in a tuple must be from the domain of its attribute (or it could be null, if allowed for that attribute)"
+                }
+            ]
+        },
+        {
+            "slide_number": 18,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Example: Consider the CAR relation schema:\nCAR(State, Reg#, SerialNo, Make, Model, Year)\nCAR has two keys:\nKey1 = {State, Reg#}\nKey2 = {SerialNo}\nBoth are also superkeys of CAR\n{SerialNo, Make} is a superkey but not a key.\nIn general:\nAny key is a superkey (but not vice versa)\nAny set of attributes that includes a key is a superkey\nA minimal superkey is also a key"
+                }
+            ]
+        },
+        {
+            "slide_number": 19,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "If a relation has several candidate keys, one is chosen arbitrarily to be the primary key. \nThe primary key attributes are underlined.\nExample: Consider the CAR relation schema:\nCAR(State, Reg#, SerialNo, Make, Model, Year)\nWe chose SerialNo as the primary key\nThe primary key value is used to uniquely identify each tuple in a relation\nProvides the tuple identity\nAlso used to reference the tuple from another tuple\nGeneral rule: Choose as primary key the smallest of the candidate keys (in terms of size)\nNot always applicable – choice is sometimes subjective"
+                }
+            ]
+        },
+        {
+            "slide_number": 20,
+            "content": [
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_20_3.png",
+                    "ocr_text": "figure car relation two candidate key licensenumber engineserialnumber car licensenumber engineserialnumber make model year texas abc739 a69352 ford mustang florida tvp347 b43696 oldsmobile cutlas new york mpo22 x83554 oldsmobile delta california 432tfy c43742 mercedes 190d california rsk629 y82935 toyota camry texas rsk629 u028365 jaguar xjs"
+                }
+            ]
+        },
+        {
+            "slide_number": 21,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Entity Integrity:\nThe primary key attributes PK of each relation schema R in S cannot have null values in any tuple of r(R).\nThis is because primary key values are used to identify the individual tuples.\nt[PK]  null for any tuple t in r(R)\nIf PK has several attributes, null is not allowed in any of these attributes\nNote: Other attributes of R may be constrained  to disallow null values, even though they are not members of the primary key."
+                }
+            ]
+        },
+        {
+            "slide_number": 22,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "A constraint involving two relations\nThe previous constraints involve a single  relation.\nUsed to specify a relationship among tuples in two relations: \nThe referencing relation and the referenced relation."
+                }
+            ]
+        },
+        {
+            "slide_number": 23,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Tuples in the referencing relation R1 have attributes FK (called foreign key attributes) that reference the primary key attributes PK of the referenced relation R2.\nA tuple t1 in R1 is said to reference a tuple t2 in R2 if t1[FK] = t2[PK].\nA referential integrity constraint can be displayed in a relational database schema as a directed arc from R1.FK to R2."
+                }
+            ]
+        },
+        {
+            "slide_number": 24,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Referential Integrity (or foreign key) \u000bConstraint"
+                },
+                {
+                    "type": "text",
+                    "text": "Statement of the constraint\nThe value in the foreign key column (or columns) \tFK of the the referencing relation R1 can be either:\n(1) a value of an existing primary key value of a corresponding primary key PK in the referenced relation R2, or\n(2) a null.\nIn case (2), the FK in R1 should not be a part of its own primary key."
+                }
+            ]
+        },
+        {
+            "slide_number": 25,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Displaying a relational database schema and its constraints"
+                },
+                {
+                    "type": "text",
+                    "text": "Each relation schema can be displayed as a row of attribute names\nThe name of the relation is written above the attribute names\nThe primary key attribute (or attributes) will be underlined\nA foreign key (referential integrity) constraints is displayed as a directed arc (arrow) from the foreign key attributes to the referenced table\nCan also point the the primary key of the referenced relation for clarity\nNext slide shows the COMPANY relational schema diagram"
+                }
+            ]
+        },
+        {
+            "slide_number": 26,
+            "content": [
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_26_3.png",
+                    "ocr_text": "employee figure fname minit lname ssn bdate address sex salary superssn dno department dname dnumber mgrssn mgrstartdate deptlocations dnumber dlocation us project pname pnumber plocation dnum workson essn pno hour dependent essn dependentname sex bdate relationship result mapping company schema relational database schema"
+                }
+            ]
+        },
+        {
+            "slide_number": 27,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Semantic Integrity Constraints:\nbased on application semantics and cannot be expressed by the model per se\nExample: “the max. no. of hours per employee for all projects he or she works on is 56 hrs per week”\nA constraint specification language may have to be used to express these\nSQL-99 allows TRIGGERS and assertions to express for some of these"
+                }
+            ]
+        },
+        {
+            "slide_number": 28,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Each relation will have many tuples in its current relation state\nThe relational database state is a union of all the individual relation states\nWhenever the database is changed, a new state arises\nBasic operations for changing the database:\nINSERT a new tuple in a relation\nDELETE an existing tuple from a relation\nMODIFY an attribute of an existing tuple\nNext slide shows an example state for the COMPANY database"
+                }
+            ]
+        },
+        {
+            "slide_number": 29,
+            "content": [
+                {
+                    "type": "image",
+                    "image_path": "Data\\lec84b6b360-f955-4873-89a6-893d61d7700e\\Images\\image_29_2.png"
+                }
+            ]
+        },
+        {
+            "slide_number": 30,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "INSERT a tuple.\nDELETE a tuple.\nMODIFY a tuple.\nIntegrity constraints should not be violated by the update operations.\nSeveral update operations may have to be grouped together.\nUpdates may propagate  to cause other updates automatically. This may be necessary to maintain integrity constraints."
+                }
+            ]
+        },
+        {
+            "slide_number": 31,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "In case of integrity violation, several actions can be taken:\nCancel the operation that causes the violation (RESTRICT or REJECT option)\nPerform the operation but inform the user of the violation\nTrigger additional updates so the violation is corrected (CASCADE option, SET NULL option)\nExecute a user-specified error-correction routine"
+                }
+            ]
+        },
+        {
+            "slide_number": 32,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "INSERT may violate any of the constraints:\nDomain constraint:\nif one of the attribute values provided for the new tuple is not of the specified attribute domain\nKey constraint:\nif the value of a key attribute in the new tuple already exists in another tuple in the relation\nReferential integrity:\nif a foreign key value in the new tuple references a primary key value that does not exist in the referenced relation\nEntity integrity:\nif the primary key value is null in the new tuple"
+                }
+            ]
+        },
+        {
+            "slide_number": 33,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "DELETE may violate only referential integrity:\nIf the primary key value of the tuple being deleted is referenced from other tuples in the database\nCan be remedied by several actions: RESTRICT, CASCADE, SET NULL (see Chapter 8 for more details)\nRESTRICT option: reject the deletion\nCASCADE option: to attempt to cascade (or propagate) the deletion by deleting tuples that reference the tuple that is being deleted.\nSET NULL or SET DEFAULT option: set the foreign keys of the referencing tuples to NULL or changed to reference another default valid tuple\nOne of the above options must be specified during database design for each foreign key constraint"
+                }
+            ]
+        },
+        {
+            "slide_number": 34,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "UPDATE may violate domain constraint and NOT NULL constraint on an attribute being modified\nAny of the other constraints may also be violated, depending on the attribute being updated:\nUpdating the primary key (PK):\nSimilar to a DELETE followed by an INSERT\nNeed to specify similar options to DELETE\nUpdating a foreign key (FK):\nMay violate referential integrity\nUpdating an ordinary attribute (neither PK nor FK):\nCan only violate domain constraints"
+                }
+            ]
+        },
+        {
+            "slide_number": 35,
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Presented Relational Model Concepts\nDefinitions\nCharacteristics of relations\nDiscussed Relational Model Constraints and Relational Database Schemas\nDomain constraints’\nKey constraints\nEntity integrity\nReferential integrity\nDescribed the Relational Update Operations and Dealing with Constraint Violations"
+                }
+            ]
+        }
+    ]
+}
