@@ -26,7 +26,9 @@ class TextPreprocessor:
     def is_relevant_text(text, relevance_model, label_embeddings):
         try:
             text_embedding = relevance_model.encode(text)
-            return util.cos_sim(text_embedding, label_embeddings).max() > 0.3
+            similarities = util.cos_sim(text_embedding, label_embeddings)
+            threshold = similarities.mean() + similarities.std()
+            return similarities.max() > threshold
         except Exception as e:
             print(f"Error evaluating text relevance: {e}")
             return False

@@ -2,7 +2,7 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 from PIL import Image
 import io
-from preprocessing import *
+from filters.preprocessing import *
 import os
 
 
@@ -31,6 +31,9 @@ class TextExtractor:
                     if preprocessed_text:
                         all_text.append(preprocessed_text)
         return all_text
+    
+    
+        
 
 
 
