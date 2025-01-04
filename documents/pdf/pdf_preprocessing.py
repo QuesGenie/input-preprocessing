@@ -1,4 +1,3 @@
-from pptx import Presentation
 from tqdm.auto import tqdm
 import shutil
 from DocumentPreprocessing import *

@@ -1,6 +1,5 @@
-from PowerPoint.PowerPointPreprocessing import *
-from pdf.PdfPreprocessing import *
-
+from powerpoint.powerpoint_preprocessing import *
+from pdf.pdf_preprocessing import *
 
 class DocumentProcessorFactory:
     @staticmethod
