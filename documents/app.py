@@ -1,3 +1,5 @@
+import sys
+
 from powerpoint.powerpoint_preprocessing import *
 from pdf.pdf_preprocessing import *
 
@@ -16,17 +18,11 @@ class DocumentProcessorFactory:
 def main():
     relevance_model = SentenceTransformer('all-MiniLM-L6-v2')
     
-    # Process a PowerPoint file
-    ppt_path = './lec.pptx'
-    if os.path.exists(ppt_path):
-        processor = DocumentProcessorFactory.create_processor(ppt_path, relevance_model)
-        output_file = processor.extract_text_and_images()
-        processor.print_stats()
-    
-    # Process a PDF file
-    pdf_path = './lec.pdf'
-    if os.path.exists(pdf_path):
-        processor = DocumentProcessorFactory.create_processor(pdf_path, relevance_model)
+    # File path
+    file_path = sys.argv[1]
+
+    if os.path.exists(file_path):
+        processor = DocumentProcessorFactory.create_processor(file_path, relevance_model)
         output_file = processor.extract_text_and_images()
         processor.print_stats()
 

@@ -1,4 +1,9 @@
-python-pptx
-pytesseract
-bertopic
-tesseract-ocr
+python-pptx 
+pytesseract 
+bertopic 
+sentence_transformers 
+torch 
+pdfplumber  
+tqdm
+nltk
+pymupdf
