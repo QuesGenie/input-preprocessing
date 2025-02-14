@@ -28,7 +28,7 @@ from document.pdf_processor import PDFProcessor
 from your_relevance_model import YourRelevanceModel
 
 relevance_model = YourRelevanceModel()
-pdf_processor = PDFProcessor("path/to/document.pdf", relevance_model)
+pdf_processor = PDFProcessor("path/to/document.pdf", relevance_model, "path/to/store/output")
 output_file = pdf_processor.extract_text_and_images()
 print(f"Processed content saved in: {output_file}")
 ```

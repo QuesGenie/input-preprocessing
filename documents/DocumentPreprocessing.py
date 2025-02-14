@@ -1,18 +1,17 @@
 from abc import ABC, abstractmethod
 from sentence_transformers import SentenceTransformer
 import os
-import uuid
 import time
 import json
 from typing import Dict, Any
 
 
 class DocumentProcessor(ABC):
-    def __init__(self, path: str, relevance_model: Any):
+    def __init__(self, path: str, relevance_model: Any,output_path: str):
         self.path = path
         self.relevance_model = relevance_model
-        self.folder_name = f"{os.path.splitext(os.path.basename(path))[0]}_{str(uuid.uuid4())}"
-        self.folder_path = os.path.join('Data', self.folder_name)
+        self.folder_name = f"{os.path.splitext(os.path.basename(path))[0]}"
+        self.folder_path = os.path.join(output_path, self.folder_name)
         self.folder_image_path = os.path.join(self.folder_path, 'Images')
         self.folder_text_path = os.path.join(self.folder_path, 'Text')
         self.stats = self._init_stats()

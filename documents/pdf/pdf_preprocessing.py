@@ -10,8 +10,8 @@ from pdf.py_mupdf import *
 
 
 class PDFProcessor(DocumentProcessor):
-    def __init__(self, path: str, relevance_model: Any, pdf_engine: str = 'pymupdf'):
-        super().__init__(path, relevance_model)
+    def __init__(self, path: str, relevance_model: Any, pdf_engine, output_path):
+        super().__init__(path, relevance_model, output_path)
         self.pdf_engine = self._get_pdf_engine(pdf_engine)
 
     def _get_pdf_engine(self, engine_name: str):
