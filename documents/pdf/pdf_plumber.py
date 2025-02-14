@@ -4,7 +4,7 @@ from  filters.extract import *
 from utils.Json import JsonUtils as utils
 
 
-class PDFPlumper:
+class PDFPlumber:
 
     def extract_text_and_images(pdf_file):
 

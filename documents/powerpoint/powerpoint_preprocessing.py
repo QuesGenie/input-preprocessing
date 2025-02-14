@@ -48,10 +48,7 @@ class PowerPointProcessor(DocumentProcessor):
 
     def _process_text_shape(self, shape, slide_data: Dict, label_embeddings) -> None:
         text = shape.text_frame.text.strip()
-        preprocessed_text = TextPreprocessor.preprocess_text(text)
-        if preprocessed_text and TextPreprocessor.is_relevant_text(
-            preprocessed_text, self.relevance_model, label_embeddings
-        ):
+        if text:
             slide_data["content"].append({"type": "text", "text": text})
             self.stats["total_relevant_text_blocks"] += 1
 

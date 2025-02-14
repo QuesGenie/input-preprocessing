@@ -17,7 +17,7 @@ class PDFProcessor(DocumentProcessor):
     def _get_pdf_engine(self, engine_name: str):
         engines = {
             'pymupdf': Pymupdf(),
-            'pdfplumber': PDFPlumper()
+            'pdfplumber': PDFPlumber()
         }
         return engines.get(engine_name.lower(),Pymupdf())
 
@@ -81,13 +81,10 @@ class PDFProcessor(DocumentProcessor):
 
     def _process_text_item(self, item: Dict, processed_slide: Dict, label_embeddings) -> None:
         text = item.get("text", "")
-        preprocessed_text = TextPreprocessor.preprocess_text(text)
-        if preprocessed_text and TextPreprocessor.is_relevant_text(
-            preprocessed_text, self.relevance_model, label_embeddings
-        ):
+        if text:
             processed_slide["content"].append({
                 "type": "text",
-                "text": preprocessed_text
+                "text": text
             })
             self.stats["total_relevant_text_blocks"] += 1
 
