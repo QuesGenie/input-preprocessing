@@ -1,8 +1,5 @@
 python-pptx 
 pytesseract 
-bertopic 
-sentence_transformers 
-torch 
 pdfplumber  
 tqdm
 nltk

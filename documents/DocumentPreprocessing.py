@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from sentence_transformers import SentenceTransformer
 import os
 import time
 import json
@@ -7,9 +6,8 @@ from typing import Dict, Any
 
 
 class DocumentProcessor(ABC):
-    def __init__(self, path: str, relevance_model: Any,output_path: str):
+    def __init__(self, path: str,output_path: str):
         self.path = path
-        self.relevance_model = relevance_model
         self.folder_name = f"{os.path.splitext(os.path.basename(path))[0]}"
         self.folder_path = os.path.join(output_path, self.folder_name)
         self.folder_image_path = os.path.join(self.folder_path, 'Images')
@@ -23,7 +21,7 @@ class DocumentProcessor(ABC):
         return {
             "total_pages": 0,
             "total_images_extracted": 0,
-            "total_relevant_text_blocks": 0,
+            "total_text_blocks": 0,
             "total_ocr_text_blocks": 0,
             "processing_time": 0,
         }

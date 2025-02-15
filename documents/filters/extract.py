@@ -6,7 +6,7 @@ import os
 
 class TextExtractor:
     @staticmethod
-    def extract_text_from_image(image_blob, relevance_model, label_embeddings):
+    def extract_text_from_image(image_blob):
         try:
             image = Image.open(io.BytesIO(image_blob))
             text = pytesseract.image_to_string(image).strip()
