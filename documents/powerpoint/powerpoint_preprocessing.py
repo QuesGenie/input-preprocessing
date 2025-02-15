@@ -2,7 +2,6 @@ from pptx import Presentation
 from tqdm.auto import tqdm
 import shutil
 from DocumentPreprocessing import *
-from utils.candidate_labels import *
 from filters.extract import *
 
 
@@ -12,15 +11,11 @@ class PowerPointProcessor(DocumentProcessor):
             ppt = Presentation(self.path)
             self.stats["total_pages"] = len(ppt.slides)
             extracted_content = {"slides": []}
-            
-            all_text = TextExtractor.extract_all_text(ppt)
-            labels = LabelGenerator.generate_labels(all_text, self.relevance_model)
-            label_embeddings = self.relevance_model.encode(labels)
 
             start_time = time.time()
             
             for slide_number, slide in enumerate(tqdm(ppt.slides), start=1):
-                slide_data = self._process_slide(slide, slide_number, label_embeddings)
+                slide_data = self._process_slide(slide, slide_number)
                 if slide_data["content"]:
                     extracted_content["slides"].append(slide_data)
 
@@ -35,32 +30,27 @@ class PowerPointProcessor(DocumentProcessor):
             shutil.rmtree(self.folder_path, ignore_errors=True)
             return ""
 
-    def _process_slide(self, slide, slide_number: int, label_embeddings) -> Dict:
+    def _process_slide(self, slide, slide_number: int) -> Dict:
         slide_data = {"slide_number": slide_number, "content": []}
         
         for index, shape in enumerate(slide.shapes, start=1):
             if shape.has_text_frame and shape.text_frame.text.strip():
-                self._process_text_shape(shape, slide_data, label_embeddings)
+                self._process_text_shape(shape, slide_data)
             elif hasattr(shape, "image"):
-                self._process_image_shape(shape, slide_number, index, slide_data, label_embeddings)
+                self._process_image_shape(shape, slide_number, index, slide_data)
                 
         return slide_data
 
-    def _process_text_shape(self, shape, slide_data: Dict, label_embeddings) -> None:
+    def _process_text_shape(self, shape, slide_data: Dict) -> None:
         text = shape.text_frame.text.strip()
-        preprocessed_text = TextPreprocessor.preprocess_text(text)
-        if preprocessed_text and TextPreprocessor.is_relevant_text(
-            preprocessed_text, self.relevance_model, label_embeddings
-        ):
+        if text:
             slide_data["content"].append({"type": "text", "text": text})
-            self.stats["total_relevant_text_blocks"] += 1
+            self.stats["total_text_blocks"] += 1
 
     def _process_image_shape(self, shape, slide_number: int, index: int, 
-                           slide_data: Dict, label_embeddings) -> None:
+                           slide_data: Dict) -> None:
         image_data = shape.image.blob
-        ocr_text = TextExtractor.extract_text_from_image(
-            image_data, self.relevance_model, label_embeddings
-        )
+        ocr_text = TextExtractor.extract_text_from_image(image_data)
 
         image_path = os.path.join(
             self.folder_image_path, f"image_{slide_number}_{index}.png"

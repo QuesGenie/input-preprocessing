@@ -4,7 +4,7 @@ from  filters.extract import *
 from utils.Json import JsonUtils as utils
 
 
-class PDFPlumper:
+class PDFPlumber:
 
     def extract_text_and_images(pdf_file):
 
@@ -26,6 +26,7 @@ class PDFPlumper:
                 utils.add_text_to_json_format(text,page_number,slide)
                 for i, img in enumerate(page.images):
                     ocr_text = TextExtractor.extract_text_from_image(img)
+                    print("OCR:",ocr_text)
                     if not ocr_text:
                         image_filename = f"page_{page_number+1}_img_{i+1}.png"
                         image_path = os.path.join(image_folder, image_filename)
