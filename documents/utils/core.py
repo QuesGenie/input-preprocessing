@@ -105,15 +105,10 @@ class Chunker:
                             chunks.append(Chunk(file_path, page["page_number"], stripped))
             return chunks
 
-    def chunk_sources(self, source_dir, strategy='none'):
-        sources = []
-        for source in os.listdir(source_dir):
-            json_file = source_dir + source + "/text/Data-" + source + ".json"
-            print(sources)
-            chunks = parse_preprocessed_file(json_file)
-            chunks = rechunk(chunks, strategy)
-            sources.append(chunks)
-        return sources
+    def chunk(self, filename, strategy='none'):
+        chunks = self._json_to_chunks(filename)
+        chunks = self._rechunk(chunks, strategy)
+        return chunks
     
     def _rechunk(self, chunk_list, strategy='none', **kwargs):
         """
