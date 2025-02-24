@@ -1,7 +1,7 @@
 import pdfplumber
 import os
 from  filters.extract import *
-from utils.Json import JsonUtils as utils
+import utils
 
 
 class PDFPlumber:

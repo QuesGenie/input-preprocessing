@@ -10,8 +10,8 @@ class DocumentProcessor(ABC):
         self.path = path
         self.folder_name = f"{os.path.splitext(os.path.basename(path))[0]}"
         self.folder_path = os.path.join(output_path, self.folder_name)
-        self.folder_image_path = os.path.join(self.folder_path, 'Images')
-        self.folder_text_path = os.path.join(self.folder_path, 'Text')
+        self.folder_image_path = os.path.join(self.folder_path, 'images')
+        self.folder_text_path = os.path.join(self.folder_path, 'text')
         self.stats = self._init_stats()
         
         os.makedirs(self.folder_image_path, exist_ok=True)
@@ -41,3 +41,5 @@ class DocumentProcessor(ABC):
         print(f"\n=== {self.__class__.__name__} Processing Stats ===")
         for key, value in self.stats.items():
             print(f"{key.replace('_', ' ').capitalize()}: {value}")
+
+

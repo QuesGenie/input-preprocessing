@@ -26,7 +26,7 @@ from document.pdf_processor import PDFProcessor
 
 ```python
 
-pdf_processor = PDFProcessor("path/to/document.pdf", "path/to/store/output")
+git pdf_processor = PDFProcessor("path/to/document.pdf", "path/to/store/output")
 output_file = pdf_processor.extract_text_and_images()
 print(f"Processed content saved in: {output_file}")
 ```
@@ -42,7 +42,7 @@ from document.ppt_processor import PowerPointProcessor
 #### Initialize and Process a PowerPoint File
 
 ```python
-ppt_processor = PowerPointProcessor("path/to/presentation.pptx")
+ppt_processor = PowerPointProcessor("path/to/presentation.pptx", relevance_model)
 output_file = ppt_processor.extract_text_and_images()
 print(f"Processed content saved in: {output_file}")
 ```

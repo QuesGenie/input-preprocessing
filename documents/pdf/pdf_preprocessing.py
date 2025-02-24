@@ -20,7 +20,10 @@ class PDFProcessor(DocumentProcessor):
         }
         return engines.get(engine_name.lower(),Pymupdf())
 
-    def extract_text_and_images(self) -> str:
+    def extract_text_and_images(self,file_name=None) -> str:
+        if file_name==None:
+            filename = os.path.join(self.folder_text_path, f"{self.folder_name}.json")
+
         try:
             start_time = time.time()
             
@@ -31,7 +34,6 @@ class PDFProcessor(DocumentProcessor):
 
             processed_content=self._process_content(raw_content)
 
-            filename = os.path.join(self.folder_text_path, f"Data-{self.folder_name}.json")
             self.write_json_to_file(processed_content, filename)
             
             self.stats["processing_time"] = time.time() - start_time
