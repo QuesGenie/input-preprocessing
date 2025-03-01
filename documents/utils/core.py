@@ -45,7 +45,8 @@ class PageRange:
     
     def __str__(self):
         return f"{self.start}-{self.end}" if self.start != self.end else str(self.start)
-    
+
+
     @staticmethod
     def from_page(page: Union[int, 'PageRange']) -> 'PageRange':
         """Convert a page number or PageRange to PageRange."""
@@ -67,7 +68,10 @@ class Chunk:
         self.source = source
         self.page = page
         self.text = text
-    
+    def __str__(self):
+        return (f"Chunk(source={self.source}\npage={self.page}\n"
+                f"text={self.text[:50]}...)\n")  # Truncating text for readability
+
     @staticmethod
     def merge_chunks(chunk1: 'Chunk', chunk2: 'Chunk') -> 'Chunk':
         """Merge two chunks, handling page ranges appropriately."""
