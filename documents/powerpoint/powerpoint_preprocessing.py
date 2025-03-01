@@ -1,8 +1,8 @@
 from pptx import Presentation
 from tqdm.auto import tqdm
 import shutil
-from DocumentPreprocessing import *
-from filters.extract import *
+from input_preprocessing.documents.DocumentPreprocessing import *
+from input_preprocessing.documents.filters.extract import *
 
 
 class PowerPointProcessor(DocumentProcessor):

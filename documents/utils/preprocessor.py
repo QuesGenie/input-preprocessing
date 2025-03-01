@@ -2,9 +2,9 @@
 import os
 import multiprocessing
 from concurrent.futures import ThreadPoolExecutor
-from powerpoint.powerpoint_preprocessing import PowerPointProcessor
-from pdf.pdf_preprocessing import PDFProcessor
-from utils.core import Chunker
+from input_preprocessing.documents.powerpoint.powerpoint_preprocessing import PowerPointProcessor
+from input_preprocessing.documents.pdf.pdf_preprocessing import PDFProcessor
+from input_preprocessing.documents.utils.core import Chunker
 
 class InputPreprocessor:
     def __init__(self, output_dir="data/"):

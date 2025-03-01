@@ -1,9 +1,9 @@
 from tqdm.auto import tqdm
 import shutil
-from DocumentPreprocessing import *
-from filters.extract import *
-from pdf.pdf_plumber import *
-from pdf.py_mupdf import *
+from input_preprocessing.documents.DocumentPreprocessing import *
+from input_preprocessing.documents.filters.extract import *
+from input_preprocessing.documents.pdf.pdf_plumber import *
+from input_preprocessing.documents.pdf.py_mupdf import *
 
 
 

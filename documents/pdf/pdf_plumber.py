@@ -1,7 +1,7 @@
 import pdfplumber
 import os
-from  filters.extract import *
-import utils
+from input_preprocessing.documents.filters.extract import *
+import input_preprocessing.documents.utils
 
 
 class PDFPlumber:
