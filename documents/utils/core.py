@@ -73,7 +73,7 @@ class Chunk:
 
     def __str__(self):
         return (f"Chunk(source={self.source}\npage={self.page}\n"
-                f"text={self.text[:50]}...)\n")  # Truncating text for readability
+                f"text={self.text}...)\n")  # Truncating text for readability
 
     @staticmethod
     def merge_chunks(chunk1: 'Chunk', chunk2: 'Chunk') -> 'Chunk':
