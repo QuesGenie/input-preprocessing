@@ -5,6 +5,7 @@ import re
 from typing import List, Union, Optional
 from nltk.tokenize import word_tokenize
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from input_preprocessing.documents.utils.retriever import Retriever
 
 #Json utilities
 @staticmethod
@@ -68,6 +69,8 @@ class Chunk:
         self.source = source
         self.page = page
         self.text = text
+        self._visited = False
+
     def __str__(self):
         return (f"Chunk(source={self.source}\npage={self.page}\n"
                 f"text={self.text[:50]}...)\n")  # Truncating text for readability
@@ -109,9 +112,11 @@ class Chunker:
                             chunks.append(Chunk(file_path, page["page_number"], stripped))
             return chunks
 
-    def chunk(self, filename, strategy='none'):
+    def chunk(self, filename, strategy='none', rag=True):
         chunks = self._json_to_chunks(filename)
         chunks = self._rechunk(chunks, strategy)
+        if rag==True:
+            chunks = Retriever(chunks).extract_key_chunks()
         return chunks
     
     def _rechunk(self, chunk_list, strategy='none', **kwargs):
@@ -284,5 +289,4 @@ class Chunker:
                 )
                 if self._validate_chunk(new_chunk):
                     result.append(new_chunk)
-        print(result)
         return result
