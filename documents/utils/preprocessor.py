@@ -4,7 +4,7 @@ import multiprocessing
 from concurrent.futures import ThreadPoolExecutor
 from input_preprocessing.documents.powerpoint.powerpoint_preprocessing import PowerPointProcessor
 from input_preprocessing.documents.pdf.pdf_preprocessing import PDFProcessor
-from input_preprocessing.documents.utils.core import Chunker
+from input_preprocessing.documents.utils.core import Chunker, ImageSource
 
 class InputPreprocessor:
     def __init__(self, output_dir="data/"):
@@ -77,7 +77,7 @@ class InputPreprocessor:
             return results
     
     def chunk_documents(self, json_files, strategy='none', parallel=True, max_workers=None):
-        """Chunk multiple processed documents and return all chunks"""
+        """Chunk multiple processed documents and return all chunks and images"""
         if isinstance(json_files, str):
             # Single JSON file
             return {json_files: self.chunker.chunk(json_files, strategy=strategy)}
@@ -94,35 +94,35 @@ class InputPreprocessor:
                 for future in future_to_json:
                     json_path = future_to_json[future]
                     try:
-                        chunks = future.result()
-                        results[json_path] = chunks
+                        result = future.result()
+                        results[json_path] = result
                     except Exception as e:
                         print(f"Error chunking {json_path}: {e}")
-            
-            return results
+
+            all_chunks = []
+            all_images = []
+            for result in results.values():
+                all_chunks.extend(result[0])
+                all_images.extend(result[1])
+
+            return all_chunks, all_images
         else:
             # Sequential processing
-            results = {}
+            all_chunks = []
+            all_images = []
             for original_path, json_path in json_files.items():
                 try:
-                    chunks = self.chunker.chunk(json_path, strategy=strategy)
-                    results[original_path] = chunks
+                    chunks, images = self.chunker.chunk(json_path, strategy=strategy)
+                    all_chunks.extend(chunks)
+                    all_images.extend(images)
                 except Exception as e:
                     print(f"Error chunking {json_path}: {e}")
             
-            return results
-    
+            return all_chunks, all_images
+        
+        
     def process_and_chunk_directory(self, source_dir, chunk_strategy='none', parallel=True):
         """Complete pipeline: process all documents in a directory and chunk them"""
         json_files = self.preprocess_directory(source_dir, parallel=parallel)
-        all_chunks = self.chunk_documents(json_files, strategy=chunk_strategy, parallel=parallel)
-        
-        # Flatten all chunks into a single list if needed
-        flat_chunks = []
-        for doc_chunks in all_chunks.values():
-            flat_chunks.extend(doc_chunks)
-            
-        return {
-            'by_document': all_chunks,
-            'all_chunks': flat_chunks
-        }
+        chunks, images = self.chunk_documents(json_files, strategy=chunk_strategy, parallel=parallel)
+        return chunks, images

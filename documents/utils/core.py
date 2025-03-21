@@ -92,29 +92,33 @@ class Chunker:
         self.min_chunk_tokens = min_chunk_tokens
 
     @staticmethod
-    def _json_to_chunks(file_path):
-        """Parses the preprocessed JSON file and extracts text content from pages."""
+    def _json_to_chunks_and_images(file_path):
+        """Parses the preprocessed JSON file and extracts text chunks and images from pages."""
         with open(file_path, 'r') as f:
             data = json.load(f)
             chunks = []
+            images = []
             for page in data['pages']:
                 for content in page['content']:
                     if content['type'] == 'text':
                         stripped = content['text'].strip()
                         if stripped:
                             chunks.append(Chunk(file_path, page["page_number"], stripped))
-                    elif content['type'] == 'image' and 'ocr_text' in content:
-                        stripped = content['ocr_text'].strip()
-                        if stripped:
-                            chunks.append(Chunk(file_path, page["page_number"], stripped))
-            return chunks
+                    elif content['type'] == 'image':
+                        if 'ocr_text' in content:
+                            stripped = content['ocr_text'].strip()
+                            if stripped:
+                                chunks.append(Chunk(file_path, page["page_number"], stripped))
+                        if 'image_path' in content:
+                            images.append(ImageSource(file_path, page["page_number"], content['image_path']))
+            return chunks, images
 
     def chunk(self, filename, strategy='none', rag=True):
-        chunks = self._json_to_chunks(filename)
+        chunks, images = self._json_to_chunks_and_images(filename)
         chunks = self._rechunk(chunks, strategy)
         if rag==True:
             chunks = Retriever(chunks).extract_key_chunks()
-        return chunks
+        return chunks, images
     
     def _rechunk(self, chunk_list, strategy='none', **kwargs):
         """
@@ -287,3 +291,13 @@ class Chunker:
                 if self._validate_chunk(new_chunk):
                     result.append(new_chunk)
         return result
+
+class ImageSource:
+    def __init__(self, source, page, file_path):
+        self.source = source
+        self.page = page
+        self.file_path = file_path
+
+    def __str__(self):
+        return f"ImageSource(source={self.source}, page={self.page}, file_path={self.file_path})"
+    
