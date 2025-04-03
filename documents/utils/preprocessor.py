@@ -5,13 +5,14 @@ from concurrent.futures import ThreadPoolExecutor
 from input_preprocessing.documents.powerpoint.powerpoint_preprocessing import PowerPointProcessor
 from input_preprocessing.documents.pdf.pdf_preprocessing import PDFProcessor
 from input_preprocessing.documents.utils.core import Chunker, ImageSource
+from input_preprocessing.audio.app import AudioChunk, Transcriber
 
 class InputPreprocessor:
     def __init__(self, output_dir="data/"):
         self.output_dir = output_dir
         self.json_path = os.path.join(output_dir, "json/")
         self.chunker = Chunker(min_chunk_tokens=5)
-        
+        self.audio_sources = []
         # Create necessary directories
         os.makedirs(self.json_path, exist_ok=True)
         
@@ -35,24 +36,26 @@ class InputPreprocessor:
         """Process all documents in a directory and return their JSON representations"""
         if not os.path.exists(source_dir):
             raise ValueError(f"Source directory does not exist: {source_dir}")
-            
-        file_paths = []
+        audio_paths = []
+        doc_paths = []
         for root, _, files in os.walk(source_dir):
             for file in files:
                 file_path = os.path.join(root, file)
                 ext = os.path.splitext(file_path)[1].lower()
                 if ext in ['.pdf', '.pptx']:  # Add more extensions as needed
-                    file_paths.append(file_path)
+                    doc_paths.append(file_path)
+                elif ext in ['.mp3', 'wav']:
+                    self.audio_sources.append(file_path)
         
         # Process files sequentially or in parallel
-        if parallel and len(file_paths) > 1:
+        if parallel and len(doc_paths) > 1:
             if max_workers is None:
-                max_workers = min(multiprocessing.cpu_count(), len(file_paths))
+                max_workers = min(multiprocessing.cpu_count(), len(doc_paths))
             
             results = {}
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 # Submit all tasks and keep track of them
-                future_to_path = {executor.submit(self.preprocess_document, path): path for path in file_paths}
+                future_to_path = {executor.submit(self.preprocess_document, path): path for path in doc_paths}
                 
                 # Process results as they complete
                 for future in future_to_path:
@@ -62,19 +65,16 @@ class InputPreprocessor:
                         results[path] = json_file
                     except Exception as e:
                         print(f"Error processing {path}: {e}")
-            
-            return results
         else:
             # Sequential processing
             results = {}
-            for path in file_paths:
+            for path in doc_paths:
                 try:
                     json_file = self.preprocess_document(path)
                     results[path] = json_file
                 except Exception as e:
                     print(f"Error processing {path}: {e}")
-            
-            return results
+        return results
     
     def chunk_documents(self, json_files, strategy='none', parallel=True, max_workers=None):
         """Chunk multiple processed documents and return all chunks and images"""
@@ -120,9 +120,17 @@ class InputPreprocessor:
             
             return all_chunks, all_images
         
-        
+    def chunk_audio(self):
+        model = Transcriber('base')
+        audio_chunks = []
+        for file in self.audio_sources:
+            chunks, _ = model.audio_to_sources(file)
+            audio_chunks.extend(chunks)
+        return audio_chunks
+    
     def process_and_chunk_directory(self, source_dir, chunk_strategy='none', parallel=True):
         """Complete pipeline: process all documents in a directory and chunk them"""
         json_files = self.preprocess_directory(source_dir, parallel=parallel)
         chunks, images = self.chunk_documents(json_files, strategy=chunk_strategy, parallel=parallel)
+        chunks.extend(self.chunk_audio())
         return chunks, images

@@ -1,34 +1,65 @@
 import whisper
+from tqdm import tqdm
+    
+class AudioChunk:
+    def __init__(self, source, start_time, end_time, text):
+        self.source = source
+        self.start_time = start_time
+        self.end_time = end_time
+        self.text = text
 
-class WhisperAudioTranscript:
-  def __init__(self, audio, model):
-    self.audio = whisper.load_audio(audio)
-    self.sample_rate = whisper.audio.SAMPLE_RATE
-    self.chunk_size = self.sample_rate * 20
-    self.model = model
-    self.transcription = []
-    self.chunks = []
+    def __str__(self):
+        return f"AudioChunk(source={self.source}, timestamp={self.start_time}:{self.end_time}, text={self.text})"
+    
+class Transcriber:
+  def __init__(self, model='base'):
+    self.model = whisper.load_model(model)
 
-  def chunking(self):
-      self.chunks = [self.audio[i:i + self.chunk_size] for i in range(0, len(self.audio), self.chunk_size)]
-      return self.chunks
+  def _merge_audio_chunks(self, chunks, threshold=200):
+    merged_chunks = []
+    current_chunk = None
 
-  
-  def transcribe(self):
-      chunks = self.chunking()
+    for chunk in tqdm(chunks):
+        if current_chunk is None:
+            current_chunk = chunk
+        else:
+            # Merge the current chunk with the next chunk
+            current_chunk.end_time = chunk.end_time
+            current_chunk.text += f" {chunk.text}"
 
-      for idx, chunk in enumerate(self.chunks):
-        chunk = whisper.pad_or_trim(chunk)
-        mel = whisper.log_mel_spectrogram(chunk).to(self.model.device)
-        options = whisper.DecodingOptions()
-        result = whisper.decode(model, mel, options)
-        self.transcription.append(result.text)
+            # Check if the merged text ends with a full stop
+            if current_chunk.text.endswith('.'):
+                # If the merged text is shorter than the threshold, continue merging
+                if len(current_chunk.text) < threshold:
+                    continue
+                else:
+                    # Otherwise, finalize the current chunk and start a new one
+                    merged_chunks.append(current_chunk)
+                    current_chunk = None
+    # Append the last chunk if it exists
+    if current_chunk:
+        merged_chunks.append(current_chunk)
+    return merged_chunks
 
-  def get_transcript(self):
-    self.transcribe()
-    return "".join(self.transcription)
+  def audio_to_sources(self, file_path):
+    transcript = self.model.transcribe(file_path)
+    audio_chunks = [] 
+    for segment in transcript['segments']:
+        audio_chunks.append(AudioChunk(
+            source=file_path,
+            start_time=segment['start'],
+            end_time=segment['end'],
+            text=segment['text']
+        ))
+    merged_chunks = self._merge_audio_chunks(audio_chunks)
+    print(f"Number of original segments: {len(transcript['segments'])}")
+    print(f"Number of merged chunks: {len(merged_chunks)}")
+    return merged_chunks, transcript['text']
 
 if __name__ == "__main__":
-    WhisperBaseModel = whisper.load_model("base")
-    audioModel = WhisperAudioTranscript('./samples/audio.mp3',WhisperBaseModel)
-    print(audioModel.get_transcript())
+    model = Transcriber('base')
+    audio_chunks, transcript = model.audio_to_sources('samples/audio.mp3')
+    print("Full transcript:\n" + transcript)
+    print("Audio chunks:\n")
+    for chunk in audio_chunks:
+        print(chunk)
