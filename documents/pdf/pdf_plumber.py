@@ -19,7 +19,7 @@ class PDFPlumber:
         image_folder = os.path.join(base_folder, "img")
         os.makedirs(image_folder, exist_ok=True)
         slide = {"slide_number": page_number + 1, "content": []}
-        extracted_content = {"slides": []}
+        extracted_content = {"type": "pdf", "pages": []}
         with pdfplumber.open(pdf_file) as pdf:
             for page_number, page in enumerate(pdf.pages):
                 text = page.extract_text() or ""
@@ -35,7 +35,5 @@ class PDFPlumber:
                         utils.add_image_to_json_format(page_number,slide,{img,i,image_path})
                     else:
                         utils.add_image_text_to_json_format(slide,ocr_text)
-                extracted_content["slides"].append(slide)
+                extracted_content["pages"].append(slide)
         return extracted_content
-        
-    

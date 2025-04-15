@@ -10,10 +10,10 @@ class PowerPointProcessor(DocumentProcessor):
         try:
             ppt = Presentation(self.path)
             self.stats["total_pages"] = len(ppt.slides)
-            extracted_content = {"pages": []}
+            extracted_content = {"type": "ppt", "pages": []}
 
             start_time = time.time()
-            
+
             for slide_number, slide in enumerate(tqdm(ppt.slides), start=1):
                 slide_data = self._process_slide(slide, slide_number)
                 if slide_data["content"]:
@@ -21,7 +21,7 @@ class PowerPointProcessor(DocumentProcessor):
 
             filename = os.path.join(self.folder_text_path, f"{self.folder_name}.json")
             self.write_json_to_file(extracted_content, filename)
-            
+
             self.stats["processing_time"] = time.time() - start_time
             return filename
 
@@ -32,13 +32,13 @@ class PowerPointProcessor(DocumentProcessor):
 
     def _process_slide(self, slide, slide_number: int) -> Dict:
         slide_data = {"page_number": slide_number, "content": []}
-        
+
         for index, shape in enumerate(slide.shapes, start=1):
             if shape.has_text_frame and shape.text_frame.text.strip():
                 self._process_text_shape(shape, slide_data)
             elif hasattr(shape, "image"):
                 self._process_image_shape(shape, slide_number, index, slide_data)
-                
+
         return slide_data
 
     def _process_text_shape(self, shape, slide_data: Dict) -> None:

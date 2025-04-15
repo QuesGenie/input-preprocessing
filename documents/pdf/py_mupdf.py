@@ -42,5 +42,5 @@ class Pymupdf:
 
         pdf_document.close()
 
-        result = {"pages": slides}
+        result = {"type": "pdf", "pages": slides}
         return result

@@ -15,23 +15,23 @@ class InputPreprocessor:
         self.audio_sources = []
         # Create necessary directories
         os.makedirs(self.json_path, exist_ok=True)
-        
+
     def create_processor(self, file_path):
         """Factory method to create the appropriate document processor"""
         file_extension = os.path.splitext(file_path)[1].lower()
         if file_extension == '.pptx':
             return PowerPointProcessor(file_path, self.json_path)
         elif file_extension == '.pdf':
-            return PDFProcessor(file_path, 'pymupdf', self.json_path)
+            return PDFProcessor(file_path, "pymupdf", self.json_path)
         else:
             raise ValueError(f"Unsupported file type: {file_extension}")
-    
+
     def preprocess_document(self, file_path):
         """Process a single document and return its JSON representation"""
         processor = self.create_processor(file_path)
         json_file = processor.extract_text_and_images()
         return json_file
-    
+
     def preprocess_directory(self, source_dir, parallel=True, max_workers=None):
         """Process all documents in a directory and return their JSON representations"""
         if not os.path.exists(source_dir):
@@ -46,17 +46,17 @@ class InputPreprocessor:
                     doc_paths.append(file_path)
                 elif ext in ['.mp3', 'wav']:
                     self.audio_sources.append(file_path)
-        
+
         # Process files sequentially or in parallel
         if parallel and len(doc_paths) > 1:
             if max_workers is None:
                 max_workers = min(multiprocessing.cpu_count(), len(doc_paths))
-            
+
             results = {}
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 # Submit all tasks and keep track of them
                 future_to_path = {executor.submit(self.preprocess_document, path): path for path in doc_paths}
-                
+
                 # Process results as they complete
                 for future in future_to_path:
                     path = future_to_path[future]
@@ -75,22 +75,22 @@ class InputPreprocessor:
                 except Exception as e:
                     print(f"Error processing {path}: {e}")
         return results
-    
+
     def chunk_documents(self, json_files, strategy='none', parallel=True, max_workers=None):
         """Chunk multiple processed documents and return all chunks and images"""
         if isinstance(json_files, str):
             # Single JSON file
             return {json_files: self.chunker.chunk(json_files, strategy=strategy)}
-            
+
         if parallel and len(json_files) > 1:
             if max_workers is None:
                 max_workers = min(multiprocessing.cpu_count(), len(json_files))
-            
+
             results = {}
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_json = {executor.submit(self.chunker.chunk, json_path, strategy): json_path 
                                  for json_path in json_files.values()}
-                
+
                 for future in future_to_json:
                     json_path = future_to_json[future]
                     try:
@@ -117,9 +117,9 @@ class InputPreprocessor:
                     all_images.extend(images)
                 except Exception as e:
                     print(f"Error chunking {json_path}: {e}")
-            
+
             return all_chunks, all_images
-        
+
     def chunk_audio(self):
         model = Transcriber('base')
         audio_chunks = []
@@ -127,7 +127,7 @@ class InputPreprocessor:
             chunks, _ = model.audio_to_sources(file)
             audio_chunks.extend(chunks)
         return audio_chunks
-    
+
     def process_and_chunk_directory(self, source_dir, chunk_strategy='none', parallel=True):
         """Complete pipeline: process all documents in a directory and chunk them"""
         json_files = self.preprocess_directory(source_dir, parallel=parallel)

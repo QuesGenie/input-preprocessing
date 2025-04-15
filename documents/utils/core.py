@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from input_preprocessing.documents.utils.retriever import Retriever
 
-#Json utilities
+# Json utilities
 def add_text_to_json_format(text,slide):
     slide["content"].append({
         "type": "text",
@@ -26,66 +26,60 @@ def add_image_text_to_json_format(slide,ocr_text):
         "type": "image",
         "ocr_text": ocr_text 
     })
-            
+
 def write_json_to_file(data, filename):
     try:
         with open(filename, "w", encoding="utf-8") as json_file:
             json.dump(data, json_file, indent=4, ensure_ascii=False)
             print(f"JSON data has been written to {filename}")
     except Exception as e:
-            print(f"An error occurred while writing JSON to file: {e}")
+        print(f"An error occurred while writing JSON to file: {e}")
 
-
-class PageRange:
-    def __init__(self, start: int, end: int):
-        self.start = start
-        self.end = end
-    
-    def __str__(self):
-        return f"{self.start}-{self.end}" if self.start != self.end else str(self.start)
-
-
-    @staticmethod
-    def from_page(page: Union[int, 'PageRange']) -> 'PageRange':
-        """Convert a page number or PageRange to PageRange."""
-        if isinstance(page, PageRange):
-            return page
-        return PageRange(page, page)
-    
-    @staticmethod
-    def merge(page1: Union[int, 'PageRange'], page2: Union[int, 'PageRange']) -> 'PageRange':
-        """Merge two page references into a single PageRange."""
-        if page1 == page2:
-            return page1
-        p1 = PageRange.from_page(page1)
-        p2 = PageRange.from_page(page2)
-        return PageRange(min(p1.start, p2.start), max(p1.end, p2.end))
 
 class Chunk:
-    def __init__(self, source: str, page: Union[int, PageRange], text: str):
+
+    def __init__(self, source: str, type: str, start: int, end: int, text: str):
         self.source = source
-        self.page = page
+        self.type = type
+        self.start = start
+        self.end = end
         self.text = text
         self._visited = False
 
     def __str__(self):
-        return (f"Chunk(source={self.source}\npage={self.page}\n"
-                f"text={self.text}...)\n")  # Truncating text for readability
+        if self.start != self.end:
+            range = f"{self.start-self.end}"
+        else:
+            range = self.start
+
+        if self.type == "ppt":
+            return (
+                f"Chunk(source={self.source}\nslide={range}\n" f"text={self.text}...)\n"
+            )
+        else:
+            return (
+                f"Chunk(source={self.source}\npage={range}\n" f"text={self.text}...)\n"
+            )
 
     @staticmethod
     def merge_chunks(chunk1: 'Chunk', chunk2: 'Chunk') -> 'Chunk':
         """Merge two chunks, handling page ranges appropriately."""
         if chunk1.source != chunk2.source:
             raise ValueError("Cannot merge chunks from different sources")
-        
-        merged_page = PageRange.merge(chunk1.page, chunk2.page)
+
+        merged_start = min(chunk1.start, chunk2.start)
+        merged_end = max(chunk1.end, chunk2.end)
+
         merged_text = f"{chunk1.text} {chunk2.text}".strip()
-        
+
         return Chunk(
             source=chunk1.source,
-            page=merged_page,
-            text=merged_text
+            type=chunk1.type,
+            start=merged_start,
+            end=merged_end,
+            text=merged_text,
         )
+
 
 class Chunker:
     def __init__(self, min_chunk_tokens: int = 5):
@@ -103,14 +97,37 @@ class Chunker:
                     if content['type'] == 'text':
                         stripped = content['text'].strip()
                         if stripped:
-                            chunks.append(Chunk(file_path, page["page_number"], stripped))
+                            chunks.append(
+                                Chunk(
+                                    source=file_path,
+                                    type=data["type"],
+                                    start=page["page_number"],
+                                    end=page["page_number"],
+                                    text=stripped,
+                                )
+                            )
                     elif content['type'] == 'image':
                         if 'ocr_text' in content:
                             stripped = content['ocr_text'].strip()
                             if stripped:
-                                chunks.append(Chunk(file_path, page["page_number"], stripped))
+                                chunks.append(
+                                    Chunk(
+                                        source=file_path,
+                                        type=data["type"],
+                                        start=page["page_number"],
+                                        end=page["page_number"],
+                                        text=stripped,
+                                    )
+                                )
                         if 'image_path' in content:
-                            images.append(ImageSource(file_path, page["page_number"], content['image_path']))
+                            images.append(
+                                ImageSource(
+                                    source=file_path,
+                                    type=data["type"],
+                                    loc=page["page_number"],
+                                    file_path=content["image_path"],
+                                )
+                            )
             return chunks, images
 
     def chunk(self, filename, strategy='none', rag=True):
@@ -119,7 +136,7 @@ class Chunker:
         if rag==True:
             chunks = Retriever(chunks).extract_key_chunks()
         return chunks, images
-    
+
     def _rechunk(self, chunk_list, strategy='none', **kwargs):
         """
         Higher-order function that returns the appropriate chunking function based on strategy.
@@ -157,11 +174,11 @@ class Chunker:
                 separators=kwargs.get('separators', None)
             )
         }
-        
+
         if strategy not in strategies:
             raise ValueError(f"Unknown chunking strategy: {strategy}. "
                         f"Available strategies: {', '.join(strategies.keys())}")
-        
+
         return strategies[strategy](chunk_list)
 
     def _validate_chunk(self, chunk: Chunk) -> bool:
@@ -177,7 +194,9 @@ class Chunker:
             sentences = re.split(r'(?<=[.!?])\s+', chunk.text)
             for sentence in sentences:
                 if sentence.strip():
-                    new_chunk = Chunk(chunk.source, chunk.page, sentence)
+                    new_chunk = Chunk(
+                        chunk.source, chunk.type, chunk.start, chunk.end, sentence
+                    )
                     if self._validate_chunk(new_chunk):
                         result.append(new_chunk)
         return result
@@ -190,8 +209,9 @@ class Chunker:
             for i in range(0, len(text), window_size):
                 window = text[i:i + window_size]
                 if window:
-                    page_range = PageRange.from_page(chunk.page)
-                    new_chunk = Chunk(chunk.source, page_range, window)
+                    new_chunk = Chunk(
+                        chunk.source, chunk.type, chunk.start, chunk.end, window
+                    )
                     if self._validate_chunk(new_chunk):
                         result.append(new_chunk)
         return result
@@ -200,19 +220,20 @@ class Chunker:
         """Split chunks into overlapping token windows."""
         if overlap >= window_size:
             raise ValueError("Overlap must be less than window size")
-        
+
         step = window_size - overlap
         if step <= 0:
             raise ValueError("Step size must be positive")
-        
+
         result = []
         for chunk in chunks:
             text = word_tokenize(chunk.text.strip())
             for i in range(0, len(text), step):
                 window = text[i:i + window_size].strip()
                 if window:
-                    page_range = PageRange.from_page(chunk.page)
-                    new_chunk = Chunk(chunk.source, page_range, window)
+                    new_chunk = Chunk(
+                        chunk.source, chunk.type, chunk.start, chunk.end, window
+                    )
                     if self._validate_chunk(new_chunk):
                         result.append(new_chunk)
         return result
@@ -221,27 +242,27 @@ class Chunker:
         """Merge consecutive small chunks until they meet the token threshold."""
         if not chunks:
             return []
-            
+
         result = []
         current = chunks[0]
-        
+
         for next_chunk in chunks[1:]:
             if current.source != next_chunk.source:
                 if self._validate_chunk(current):
                     result.append(current)
                 current = next_chunk
                 continue
-            
+
             merged = Chunk.merge_chunks(current, next_chunk)
             if self._validate_chunk(merged):
                 result.append(current)
                 current = next_chunk
             else:
                 current = merged
-        
+
         if self._validate_chunk(current):
             result.append(current)
-            
+
         return result
 
     def split_recursive(self, 
@@ -264,40 +285,43 @@ class Chunker:
         """
         if not chunks:
             return []
-        
+
         # Use default separators if none provided
         if separators is None:
             separators = ["\n\n", "\n", ". ", " ", ""]
-        
+
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             separators=separators
         )
-        
+
         result = []
-        
+
         for chunk in chunks:
             # Split the text while preserving the source and page metadata
             split_texts = splitter.split_text(chunk.text)
-            
+
             # Create new chunks with the split text but same metadata
             for text in split_texts:
                 new_chunk = Chunk(
                     source=chunk.source,
-                    page=chunk.page,
-                    text=text
+                    type=chunk.type,
+                    start=chunk.start,
+                    end=chunk.end,
+                    text=text,
                 )
                 if self._validate_chunk(new_chunk):
                     result.append(new_chunk)
         return result
 
-class ImageSource:
-    def __init__(self, source, page, file_path):
+
+class ImageSource(Chunk):
+    def __init__(self, source, type, loc, file_path):
         self.source = source
-        self.page = page
+        self.type = type
+        self.loc = loc  # page or slide
         self.file_path = file_path
 
     def __str__(self):
-        return f"ImageSource(source={self.source}, page={self.page}, file_path={self.file_path})"
-    
+        return f"ImageSource(source={self.source}, loc={self.loc}, file_path={self.file_path})"

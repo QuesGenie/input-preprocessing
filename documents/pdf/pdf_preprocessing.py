@@ -6,8 +6,6 @@ from input_preprocessing.documents.pdf.pdf_plumber import *
 from input_preprocessing.documents.pdf.py_mupdf import *
 
 
-
-
 class PDFProcessor(DocumentProcessor):
     def __init__(self, path: str, pdf_engine, output_path):
         super().__init__(path, output_path)
@@ -26,7 +24,7 @@ class PDFProcessor(DocumentProcessor):
 
         try:
             start_time = time.time()
-            
+
             # Get raw content using the selected PDF engine
             raw_content = self.pdf_engine.extract_text_and_images(
                 self.path, self.folder_image_path
@@ -35,7 +33,7 @@ class PDFProcessor(DocumentProcessor):
             processed_content=self._process_content(raw_content)
 
             self.write_json_to_file(processed_content, filename)
-            
+
             self.stats["processing_time"] = time.time() - start_time
             return filename
 
@@ -53,8 +51,8 @@ class PDFProcessor(DocumentProcessor):
         return texts
 
     def _process_content(self, content: Dict) -> Dict:
-        processed_content = {"pages": []}
-        
+        processed_content = {"type": "pdf", "pages": []}
+
         for slide in content.get("pages", []):
             processed_slide = self._process_slide(slide)
             if processed_slide["content"]:
@@ -65,13 +63,13 @@ class PDFProcessor(DocumentProcessor):
 
     def _process_slide(self, slide: Dict) -> Dict:
         processed_slide = {"page_number": slide["page_number"], "content": []}
-        
+
         for item in slide.get("content", []):
             if item.get("type") == "text":
                 self._process_text_item(item, processed_slide)
             elif item.get("type") == "image":
                 self._process_image_item(item, processed_slide)
-                
+
         return processed_slide
 
     def _process_text_item(self, item: Dict, processed_slide: Dict) -> None:
