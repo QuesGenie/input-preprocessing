@@ -42,11 +42,12 @@ class InputPreprocessor:
             for file in files:
                 file_path = os.path.join(root, file)
                 ext = os.path.splitext(file_path)[1].lower()
+                print(file_path)
                 if ext in ['.pdf', '.pptx']:  # Add more extensions as needed
                     doc_paths.append(file_path)
-                elif ext in ['.mp3', 'wav']:
+                elif ext in [".mp3", ".wav", ".audio"]:
                     self.audio_sources.append(file_path)
-
+            print(self.audio_sources)
         # Process files sequentially or in parallel
         if parallel and len(doc_paths) > 1:
             if max_workers is None:
