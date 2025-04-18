@@ -11,7 +11,7 @@ class InputPreprocessor:
     def __init__(self, output_dir="data/"):
         self.output_dir = output_dir
         self.json_path = os.path.join(output_dir, "json/")
-        self.chunker = Chunker(min_chunk_tokens=5)
+        self.chunker = Chunker(min_chunk_tokens=100)
         self.audio_sources = []
         # Create necessary directories
         os.makedirs(self.json_path, exist_ok=True)
@@ -77,51 +77,9 @@ class InputPreprocessor:
                     print(f"Error processing {path}: {e}")
         return results
 
-    def _chunk_to_lines(self, chunk: Chunk):
-        text = chunk.text
-        lines = text.splitlines()
-        return lines
-
-    def _remove_lines(self, chunk: Chunk, lines_to_remove: List[str]):
-        lines = self._chunk_to_lines(chunk)
-        filtered_lines = [line for line in lines if line not in lines_to_remove]
-        chunk.text = " ".join(filtered_lines)
-        return chunk
-
-    def _get_frequent_lines(self, lines: List[str], threshold=3):
-        line_counts = {}
-        for line in lines:
-            line = line.strip()
-            if line in line_counts:
-                line_counts[line] += 1
-            else:
-                line_counts[line] = 1
-        for line in line_counts:
-            print(f"{line_counts[line]}- {line}")
-        frequent_lines = [
-            line for line, count in line_counts.items() if count > threshold
-        ]
-        # debugging
-        frequent_lines.sort(key=lambda x: line_counts[x], reverse=True)
-        for line in frequent_lines:
-            print(f"{line}")
-        # debugging end
-        return frequent_lines
-
-    def _preprocess_chunks(self, chunks: List[Chunk]):
-        all_lines = []
-        for chunk in chunks:
-            all_lines.extend(self._chunk_to_lines(chunk))
-        frequent_lines = self._get_frequent_lines(all_lines)
-        for chunk in chunks:
-            print("BEFORE")
-            print(chunk.text)
-            self._remove_lines(chunk, frequent_lines)
-            print("AFTER")
-            print(chunk.text)
-        return chunks
-
-    def chunk_documents(self, json_files, strategy='none', parallel=True, max_workers=None):
+    def chunk_documents(
+        self, json_files, strategy="merge", parallel=True, max_workers=None
+    ):
         """Chunk multiple processed documents and return all chunks and images"""
         if isinstance(json_files, str):
             # Single JSON file
@@ -147,9 +105,7 @@ class InputPreprocessor:
             all_chunks = []
             all_images = []
             for result in results.values():
-                clean_chunks = self._preprocess_chunks(result[0])
-
-                all_chunks.extend(clean_chunks)
+                all_chunks.extend(all_chunks)
                 all_images.extend(result[1])
 
         else:
@@ -158,11 +114,9 @@ class InputPreprocessor:
             all_images = []
             for original_path, json_path in json_files.items():
                 chunks, images = self.chunker.chunk(json_path, strategy=strategy)
-                clean_chunks = self._preprocess_chunks(chunks)
-
-                all_chunks.extend(clean_chunks)
+                all_chunks.extend(chunks)
                 all_images.extend(images)
-        return clean_chunks, all_images
+        return all_chunks, all_images
 
     def chunk_audio(self):
         model = Transcriber('base')

@@ -82,7 +82,8 @@ class Chunk:
 
 
 class Chunker:
-    def __init__(self, min_chunk_tokens: int = 5):
+
+    def __init__(self, min_chunk_tokens: int = 200):
         self.min_chunk_tokens = min_chunk_tokens
 
     @staticmethod
@@ -135,7 +136,38 @@ class Chunker:
                             )
             return chunks, images
 
-    def chunk(self, filename, strategy='none', rag=True):
+    def _chunk_to_lines(self, chunk: Chunk):
+        text = chunk.text
+        lines = text.splitlines()
+        return lines
+
+    def _remove_lines(self, chunk: Chunk, lines_to_remove: List[str]):
+        lines = self._chunk_to_lines(chunk)
+        filtered_lines = [line for line in lines if line not in lines_to_remove]
+        chunk.text = " ".join(filtered_lines)
+        return chunk
+
+    def _get_bad_lines(self, lines: List[str], threshold=3):
+        line_counts = {}
+        for line in lines:
+            line = line.strip()
+            if line in line_counts:
+                line_counts[line] += 1
+            else:
+                line_counts[line] = 1
+        bad_lines = [line for line, count in line_counts.items() if count > threshold]
+        return bad_lines
+
+    def _preprocess_chunks(self, chunks: List[Chunk]):
+        all_lines = []
+        for chunk in chunks:
+            all_lines.extend(self._chunk_to_lines(chunk))
+        bad_lines = self._get_bad_lines(all_lines)
+        for chunk in chunks:
+            self._remove_lines(chunk, bad_lines)
+        return chunks
+
+    def chunk(self, filename, strategy="merge", rag=True):
         chunks, images = self._json_to_chunks_and_images(filename)
         chunks = self._rechunk(chunks, strategy)
         if rag==True:
@@ -252,11 +284,9 @@ class Chunker:
         current = chunks[0]
 
         for next_chunk in chunks[1:]:
-            if current.source != next_chunk.source:
-                if self._validate_chunk(current):
-                    result.append(current)
+            if self._validate_chunk(current):
+                result.append(current)
                 current = next_chunk
-                continue
 
             merged = Chunk.merge_chunks(current, next_chunk)
             if self._validate_chunk(merged):
