@@ -126,9 +126,14 @@ class InputPreprocessor:
             audio_chunks.extend(chunks)
         return audio_chunks
 
-    def process_and_chunk_directory(self, source_dir, chunk_strategy='none', parallel=True):
+    def process_and_chunk_directory(self, source_dir, chunk_strategy='merge', parallel=True):
         """Complete pipeline: process all documents in a directory and chunk them"""
         json_files = self.preprocess_directory(source_dir, parallel=parallel)
         chunks, images = self.chunk_documents(json_files, strategy=chunk_strategy, parallel=parallel)
         chunks.extend(self.chunk_audio())
+        i=1
+        for chunk in chunks:
+            print(i)
+            print(chunk.text)
+            i+=1
         return chunks, images

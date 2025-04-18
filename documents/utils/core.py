@@ -169,6 +169,7 @@ class Chunker:
 
     def chunk(self, filename, strategy="merge", rag=True):
         chunks, images = self._json_to_chunks_and_images(filename)
+        chunks=self._preprocess_chunks(chunks)
         chunks = self._rechunk(chunks, strategy)
         if rag==True:
             chunks = Retriever(chunks).extract_key_chunks()
