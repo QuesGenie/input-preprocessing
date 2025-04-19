@@ -105,7 +105,7 @@ class InputPreprocessor:
             all_chunks = []
             all_images = []
             for result in results.values():
-                all_chunks.extend(all_chunks)
+                all_chunks.extend(result[0])
                 all_images.extend(result[1])
 
         else:
