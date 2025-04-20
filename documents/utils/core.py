@@ -96,12 +96,7 @@ class Chunker:
             for page in data['pages']:
                 for content in page['content']:
                     if content['type'] == 'text':
-                        stripped = (
-                            content["text"]
-                            .strip()
-                            .replace("\n", " ")
-                            .replace("\t", " ")
-                        )
+                        stripped = content["text"].strip()
                         if stripped:
                             chunks.append(
                                 Chunk(
