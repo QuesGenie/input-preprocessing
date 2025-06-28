@@ -108,18 +108,18 @@ class Chunker:
                                 )
                             )
                     elif content['type'] == 'image':
-                        if 'ocr_text' in content:
-                            stripped = content['ocr_text'].strip()
-                            if stripped:
-                                chunks.append(
-                                    Chunk(
-                                        source=file_path,
-                                        type=data["type"],
-                                        start=page["page_number"],
-                                        end=page["page_number"],
-                                        text=stripped,
-                                    )
-                                )
+                        # if 'ocr_text' in content:
+                        #     stripped = content['ocr_text'].strip()
+                        #     if stripped:
+                        #         chunks.append(
+                        #             Chunk(
+                        #                 source=file_path,
+                        #                 type=data["type"],
+                        #                 start=page["page_number"],
+                        #                 end=page["page_number"],
+                        #                 text=stripped,
+                        #             )
+                        #         )
                         if 'image_path' in content:
                             images.append(
                                 ImageSource(
